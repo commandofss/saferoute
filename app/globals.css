@@ -1,0 +1,103 @@
+:root {
+  --ink: #1f2a44; --muted: #5b6785; --violet: #6d28d9; --deep: #4c1d95;
+  --mist: #eef2fa; --line: rgba(109, 40, 217, .14);
+  --shadow: 0 18px 50px -18px rgba(76, 29, 149, .35);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; color: var(--ink); background: linear-gradient(180deg, #f3f0fb, var(--mist) 40%, #f7f9fd);
+  font-family: "Avenir Next", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif; line-height: 1.5; }
+
+.app > * { max-width: 960px; margin-inline: auto; }
+.app > .hero { max-width: none; }
+
+/* ---- hero: misty ridge ---- */
+.hero { position: relative; overflow: hidden; padding: 16px max(16px, calc((100% - 960px) / 2)) 110px;
+  background: linear-gradient(180deg, #bfd0f0 0%, #ddd6f6 55%, #f1eefb 100%); border-radius: 0 0 40px 40px; }
+.hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 120px; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0 120V70L150 30l110 40 130-50 150 60 120-35 170 55 140-45 230 60v55z' fill='%23ffffff' fill-opacity='.45'/%3E%3Cpath d='M0 120V95l200-35 160 30 200-40 180 45 190-30 270 40v15z' fill='%23ffffff' fill-opacity='.7'/%3E%3C/svg%3E") center bottom / 100% 100% no-repeat; }
+.fog { position: absolute; width: 60%; height: 70%; border-radius: 50%; filter: blur(50px); opacity: .55; pointer-events: none;
+  background: radial-gradient(closest-side, #fff, transparent); top: 10%; left: -10%; animation: drift 26s ease-in-out infinite alternate; }
+.fog.f2 { left: auto; right: -15%; top: 30%; animation-duration: 34s; animation-direction: alternate-reverse; background: radial-gradient(closest-side, #e9defc, transparent); }
+@keyframes drift { to { transform: translateX(22%); } }
+
+.top { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand img { border-radius: 11px; box-shadow: 0 6px 16px -6px rgba(76,29,149,.6); }
+.top h1 { margin: 0; font-size: 21px; font-weight: 600; color: var(--deep); letter-spacing: .01em; }
+.actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.headline { position: relative; z-index: 1; margin: 42px 0 8px; max-width: 16ch; font-size: clamp(34px, 7vw, 58px);
+  font-weight: 300; line-height: 1.06; letter-spacing: -.02em; color: var(--deep); }
+.sub { position: relative; z-index: 1; margin: 0; max-width: 46ch; color: #3b4770; font-size: 16px; }
+
+button { font: inherit; cursor: pointer; transition: transform .15s ease, box-shadow .2s ease, filter .2s ease; }
+button:active { transform: scale(.97); }
+.sos { background: #be123c; color: #fff; border: 0; border-radius: 999px; padding: 10px 18px; font-weight: 600; box-shadow: 0 10px 24px -10px #be123c; }
+.install { background: rgba(255,255,255,.75); color: var(--deep); border: 1px solid var(--line); border-radius: 999px; padding: 10px 16px; font-weight: 600; backdrop-filter: blur(6px); }
+.install-help { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; max-width: 220px; }
+
+/* ---- map stage ---- */
+.stage { position: relative; z-index: 2; margin-top: -78px; margin-inline: 12px; background: rgba(255,255,255,.78); backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,.9); border-radius: 28px; box-shadow: var(--shadow); padding: 10px; }
+@media (min-width: 984px) { .stage { margin-inline: auto; } }
+.filters { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 8px 10px 10px; font-size: 14px; align-items: center; color: var(--muted); }
+.filters input { accent-color: var(--violet); }
+.legend i { display: inline-block; width: 11px; height: 11px; margin: 0 4px 0 10px; border-radius: 50%; vertical-align: middle; }
+.map { height: 58vh; min-height: 340px; width: 100%; border-radius: 20px; overflow: hidden; }
+.leaflet-control-layers { border-radius: 14px !important; border: 0 !important; box-shadow: 0 8px 22px -10px rgba(76,29,149,.5) !important; }
+
+/* ---- cards ---- */
+.panel { background: rgba(255,255,255,.82); margin: 18px 12px; padding: 20px; border-radius: 22px; display: grid; gap: 12px;
+  border: 1px solid var(--line); box-shadow: 0 10px 34px -22px rgba(76,29,149,.5); }
+@media (min-width: 984px) { .panel { margin-inline: auto; } }
+.panel h2 { margin: 0; font-size: 20px; font-weight: 400; color: var(--deep); }
+.panel label { display: grid; gap: 5px; font-size: 14px; color: var(--muted); }
+.panel select, .panel textarea, .panel input[type=text] { padding: 10px 12px; border: 1px solid #d5dbec; border-radius: 12px; font: inherit; color: var(--ink); background: #fff; transition: border-color .2s, box-shadow .2s; }
+.panel select:focus, .panel textarea:focus, .panel input:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 4px rgba(109,40,217,.14); }
+.panel textarea { min-height: 70px; }
+.panel button { background: linear-gradient(135deg, #7c3aed, #4c1d95); color: #fff; border: 0; border-radius: 999px; padding: 12px 18px; font-weight: 600; }
+.panel button.locate { background: linear-gradient(135deg, #14b8a6, #0f766e); }
+.panel button:disabled { opacity: .6; }
+.hint { margin: 0; font-size: 13px; color: var(--muted); }
+.msg { margin: 0; font-size: 14px; padding: 10px 14px; border-radius: 12px; background: #f1eefb; color: var(--deep); animation: pop .35s ease both; }
+@keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.98); } }
+.guide summary { cursor: pointer; font-weight: 600; color: var(--deep); }
+.guide[open] > :not(summary) { animation: pop .35s ease both; }
+.guide p, .guide li { font-size: 14px; margin: 6px 0; }
+.guide ol { margin: 4px 0 4px 18px; padding: 0; }
+
+/* ---- map motion: only the highest-risk points and the chosen pin move ---- */
+path.pulse { animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 50% { fill-opacity: .15; stroke-width: 6; stroke-opacity: .5; } }
+path.pin { animation: ping 1.6s ease-out infinite; }
+@keyframes ping { from { stroke-width: 2; stroke-opacity: .9; } to { stroke-width: 22; stroke-opacity: 0; } }
+
+/* ---- one entrance sequence ---- */
+.headline, .sub, .stage { animation: rise .9s cubic-bezier(.2,.7,.2,1) both; }
+.sub { animation-delay: .12s; } .stage { animation-delay: .28s; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ===== Mobile app shell: phone-width screen, curved header, bottom-sheet cards, floating tab bar ===== */
+.app { max-width: 460px; margin: 0 auto; background: #f7f5fd; min-height: 100vh; padding-bottom: 96px; position: relative; }
+.app > * { max-width: none; }
+.app > .hero { padding: 16px 20px 96px; border-radius: 0 0 50% 50% / 0 0 56px 56px; }
+.headline { font-size: clamp(30px, 9vw, 40px); max-width: 13ch; margin-top: 30px; }
+.stage { margin-inline: 12px; margin-top: -64px; border-radius: 30px; }
+.map { height: 46vh; min-height: 300px; border-radius: 24px; }
+.panel { margin: 16px 12px; padding: 26px 20px 22px; border-radius: 32px; }
+.panel::before { content: ""; justify-self: center; width: 44px; height: 5px; border-radius: 999px; background: #d9d0f1; margin-top: -14px; }
+[id] { scroll-margin-top: 12px; }
+.tabbar { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 1000; width: min(432px, calc(100% - 24px));
+  display: flex; justify-content: space-around; padding: 8px; border-radius: 999px; background: rgba(255,255,255,.88);
+  backdrop-filter: blur(14px); border: 1px solid var(--line); box-shadow: 0 16px 40px -14px rgba(76,29,149,.55); }
+.tabbar a { flex: 1; text-align: center; padding: 10px 4px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--deep); text-decoration: none; transition: background .2s; }
+.tabbar a:hover, .tabbar a:focus-visible { background: #efe9fb; outline: none; }
+@media (min-width: 520px) {
+  body { padding: 24px 0; }
+  .app { border-radius: 44px; box-shadow: 0 40px 90px -36px rgba(76,29,149,.55); border: 1px solid rgba(255,255,255,.8); }
+  .app > .hero { border-radius: 44px 44px 50% 50% / 44px 44px 56px 56px; }
+}
