@@ -101,3 +101,21 @@ path.pin { animation: ping 1.6s ease-out infinite; }
   .app { border-radius: 44px; box-shadow: 0 40px 90px -36px rgba(76,29,149,.55); border: 1px solid rgba(255,255,255,.8); }
   .app > .hero { border-radius: 44px 44px 50% 50% / 44px 44px 56px 56px; }
 }
+
+/* ===== proximity alarm ===== */
+.alertbar { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 2000; width: min(432px, calc(100% - 20px));
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 22px; color: #fff;
+  background: linear-gradient(135deg, #e11d48, #9f1239); box-shadow: 0 18px 40px -12px rgba(190, 18, 60, .7); animation: alarm 1s ease-in-out infinite; }
+.alertbar span { font-size: 13px; opacity: .92; }
+.alertbar button { background: #fff; color: #9f1239; border: 0; border-radius: 999px; padding: 9px 14px; font-weight: 700; }
+@keyframes alarm { 50% { box-shadow: 0 0 0 10px rgba(225, 29, 72, .22), 0 18px 40px -12px rgba(190, 18, 60, .7); } }
+.tabbar a { padding-inline: 2px; font-size: 12.5px; }
+
+/* ===== choose which cases to show ===== */
+.cases { padding: 2px 10px 10px; }
+.cases summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--deep); padding: 4px 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chips button { border: 1px solid var(--line); background: #fff; color: var(--deep); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #d5dbec; border-radius: 999px; padding: 6px 12px; font-size: 13px; color: var(--muted); background: #fff; cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
+.chip input { accent-color: var(--violet); margin: 0; }
+.chip.on { background: #efe9fb; border-color: var(--violet); color: var(--deep); }

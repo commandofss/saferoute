@@ -4,20 +4,33 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { supabase } from "@/lib/supabase";
 import InstallButton from "@/components/InstallButton";
+import AlertPanel from "@/components/AlertPanel";
 import { latLngToUtm, utmToLatLng, zoneOf } from "@/lib/coords";
 
 const RADIUS_M = 100; // reports within 100 m count as the same point (also set in the database)
 const START: [number, number] = [8.4966, 4.5421]; // Ilorin (change if you like)
 
 const CATEGORIES: Record<string, string> = {
+  sexual_assault: "Rape / sexual assault",
+  kidnapping: "Kidnapping / attempted abduction",
+  physical_assault: "Physical assault / attack",
+  robbery: "Robbery / phone snatching",
+  theft: "Theft",
+  harassment: "Harassment / catcalling",
+  stalking: "Stalking / being followed",
+  gang_activity: "Gang or cult activity",
+  unsafe_transport: "Unsafe transport",
   poor_lighting: "Poor lighting",
   isolated_road: "Isolated road",
-  harassment: "Harassment",
-  theft: "Theft",
-  unsafe_transport: "Unsafe transport",
   blocked_path: "Blocked path",
   other: "Other",
 };
+
+const ALL_KEYS = Object.keys(CATEGORIES);
+const SERIOUS = ["sexual_assault", "kidnapping", "physical_assault", "robbery"];
+
+// For these, no note is collected and severity is always "Dangerous", to protect people's privacy
+const SENSITIVE = new Set(["sexual_assault", "kidnapping", "physical_assault"]);
 
 // RUQAYAH: adjust these colour bands once the scoring is tuned
 function colour(score: number) {
@@ -67,6 +80,11 @@ export default function MapApp() {
   const nightRef = useRef(false);
   nightRef.current = nightOnly;
 
+  const [shown, setShown] = useState<string[]>(ALL_KEYS);
+  const shownRef = useRef<string[]>(ALL_KEYS);
+  shownRef.current = shown;
+  const toggle = (k: string) => setShown((prev) => (prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]));
+
   const [pts, setPts] = useState<Pt[]>([]);
   const [picked, setPicked] = useState<{ lat: number; lng: number } | null>(null);
   const [accuracy, setAccuracy] = useState<number | null>(null);
@@ -82,6 +100,8 @@ export default function MapApp() {
     time_of_day: "night",
     description: "",
   });
+
+  const sensitive = SENSITIVE.has(form.category);
 
   const choose = useCallback((lat: number, lng: number) => {
     if (!map.current) return;
@@ -99,6 +119,7 @@ export default function MapApp() {
       max_lat: b.getNorth(),
       max_lng: b.getEast(),
       only_evening_night: nightRef.current,
+      only_categories: shownRef.current.length === ALL_KEYS.length ? null : shownRef.current,
     });
     if (error) {
       setMsg("Could not load the risk map: " + error.message);
@@ -167,7 +188,7 @@ export default function MapApp() {
 
   useEffect(() => {
     load();
-  }, [nightOnly, load]);
+  }, [nightOnly, shown, load]);
 
   // is there already a point within 100 m of the chosen spot?
   const nearby = useMemo(() => {
@@ -234,16 +255,16 @@ export default function MapApp() {
     setBusy(true);
     const { error } = await supabase.from("hazard_reports").insert({
       category: form.category,
-      severity: form.severity,
+      severity: sensitive ? 3 : form.severity,
       time_of_day: form.time_of_day,
-      description: form.description.trim() || null,
+      description: sensitive ? null : form.description.trim() || null,
       lat: picked.lat,
       lng: picked.lng,
       reporter_token: deviceToken(),
     });
     setBusy(false);
     if (error) return setMsg("Report not sent: " + error.message);
-    setMsg("Thank you. Your anonymous report was added.");
+    setMsg(sensitive ? "Thank you. Your anonymous report was added. If you or someone you know needs help, contact your local emergency number (for example 112) or a person you trust." : "Thank you. Your anonymous report was added.");
     setForm({ ...form, description: "" });
     pin.current?.remove();
     setPicked(null);
@@ -296,6 +317,23 @@ export default function MapApp() {
           <i style={{ background: "#b91c1c" }} /> very high
         </span>
       </div>
+
+      <details className="cases">
+        <summary>Cases shown: {shown.length === ALL_KEYS.length ? "all types" : `${shown.length} of ${ALL_KEYS.length}`}</summary>
+        <div className="chips">
+          <button type="button" onClick={() => setShown(ALL_KEYS)}>Show all</button>
+          <button type="button" onClick={() => setShown(SERIOUS)}>Serious crimes only</button>
+          <button type="button" onClick={() => setShown([])}>Clear</button>
+        </div>
+        <div className="chips">
+          {ALL_KEYS.map((k) => (
+            <label key={k} className={shown.includes(k) ? "chip on" : "chip"}>
+              <input type="checkbox" checked={shown.includes(k)} onChange={() => toggle(k)} />
+              {CATEGORIES[k]}
+            </label>
+          ))}
+        </div>
+      </details>
 
       <div ref={mapEl} className="map" />
       </div>
@@ -373,6 +411,8 @@ export default function MapApp() {
         </p>
       </section>
 
+      <AlertPanel />
+
       <form className="panel" id="report" onSubmit={submit}>
         <h2>Report an unsafe place (anonymous)</h2>
         <button type="button" className="locate" onClick={locate}>
@@ -400,6 +440,7 @@ export default function MapApp() {
             ))}
           </select>
         </label>
+        {!sensitive && (
         <label>
           How serious?
           <select value={form.severity} onChange={(e) => setForm({ ...form, severity: Number(e.target.value) })}>
@@ -408,6 +449,7 @@ export default function MapApp() {
             <option value={3}>Dangerous</option>
           </select>
         </label>
+        )}
         <label>
           When does it happen?
           <select value={form.time_of_day} onChange={(e) => setForm({ ...form, time_of_day: e.target.value })}>
@@ -416,10 +458,14 @@ export default function MapApp() {
             <option value="night">Night</option>
           </select>
         </label>
+        {sensitive ? (
+          <p className="hint">No note is collected for this type of report, to protect privacy. Only the place and time are saved.</p>
+        ) : (
         <label>
           Short note (optional, max 280 characters, no names)
           <textarea maxLength={280} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
         </label>
+        )}
         <button type="submit" disabled={busy}>{busy ? "Sending…" : "Send anonymous report"}</button>
         {msg && <p className="msg">{msg}</p>}
       </form>
@@ -433,7 +479,8 @@ export default function MapApp() {
       <nav className="tabbar" aria-label="Sections">
         <a href="#map">Map</a>
         <a href="#report">Report</a>
-        <a href="#coords">Coordinates</a>
+        <a href="#coords">Coords</a>
+        <a href="#alerts">Alerts</a>
         <a href="#help">Guide</a>
       </nav>
     </main>
